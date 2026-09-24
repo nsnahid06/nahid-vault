@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+/* Real Vibe Background Themes */
+[data-vibe="obsidian"], body[data-vibe="obsidian"] {
+  background: radial-gradient(circle at 50% 0%, #1c2030 0%, #0e111a 45%, #06070a 100%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-vibe="midnight"], body[data-vibe="midnight"] {
+  background: radial-gradient(circle at 50% 0%, #1b285a 0%, #0d1333 45%, #040614 100%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-vibe="emerald"], body[data-vibe="emerald"] {
+  background: radial-gradient(circle at 50% 0%, #113a27 0%, #081d13 45%, #030a06 100%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-vibe="crimson"], body[data-vibe="crimson"] {
+  background: radial-gradient(circle at 50% 0%, #4a131e 0%, #22080e 45%, #0b0204 100%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-vibe="bourbon"], body[data-vibe="bourbon"] {
+  background: radial-gradient(circle at 50% 0%, #442112 0%, #210d06 45%, #0c0402 100%) !important;
+  background-attachment: fixed !important;
+}
+
+[data-vibe="violet"], body[data-vibe="violet"] {
+  background: radial-gradient(circle at 50% 0%, #3e1e59 0%, #1e0d2e 45%, #0a0312 100%) !important;
+  background-attachment: fixed !important;
+}
+
+@layer utilities {
+
+  /* Glassmorphism Card Style */
+  .vibe-card {
+    background: rgba(22, 24, 33, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .vibe-card-hover:hover {
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.15);
+  }
+}
+
+@keyframes floatGlow {
+  0%, 100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.15;
+  }
+  50% {
+    transform: translate(20px, -20px) scale(1.1);
+    opacity: 0.25;
+  }
+}
+
+.animate-float-glow {
+  animation: floatGlow 10s ease-in-out infinite;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

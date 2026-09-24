@@ -1,0 +1,6 @@
+{
+  "name": "NAHID VAULT",
+  "description": "NAHID VAULT — Modern luxury men's fashion & AI voice commerce hub.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
