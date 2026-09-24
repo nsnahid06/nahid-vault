@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { ArrowLeft, Package, User, MapPin, CreditCard, Search, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, CreditCard, Search, LogOut } from 'lucide-react';
 
 interface AdminDashboardProps {
   onBack: () => void;
+  onSignOut: () => Promise<void>;
+  userId?: string;
   currentUser?: string;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentUser = 'user' }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, onSignOut, userId, currentUser = 'Guest' }) => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
@@ -17,19 +19,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentU
   useEffect(() => {
     const loadOrders = async () => {
       try {
-        const q = query(
-          collection(db, 'orders'),
-          orderBy('createdAt', 'desc')
-        );
+        if (!userId) {
+          setOrders([]);
+          return;
+        }
+
+        const q = query(collection(db, 'orders'), where('userId', '==', userId));
 
         const snapshot = await getDocs(q);
 
-        const orderData = snapshot.docs.map((doc) => ({
+        const orderData: any[] = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
 
-        setOrders(orderData);
+        setOrders(orderData.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || ''))));
       } catch (error) {
         console.error('Failed to load orders:', error);
       } finally {
@@ -38,20 +42,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentU
     };
 
     loadOrders();
-  }, []);
-
-  // Filter orders based on currentUser / search
-  const isAdmin = currentUser.toLowerCase() === 'admin';
+  }, [userId]);
   
   const filteredOrders = orders.filter((order) => {
     if (!searchQuery.trim()) {
-      // If user is not admin, show orders where name or email contains currentUser if applicable, or show all
-      if (!isAdmin && currentUser && currentUser.toLowerCase() !== 'user') {
-        const userTerm = currentUser.toLowerCase();
-        const fullName = (order.shippingDetails?.fullName || '').toLowerCase();
-        const email = (order.shippingDetails?.email || '').toLowerCase();
-        return fullName.includes(userTerm) || email.includes(userTerm);
-      }
       return true;
     }
 
@@ -92,11 +86,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, currentU
               <span className="text-stone-400 capitalize">Logged in as: {currentUser}</span>
             </p>
             <h1 className="text-3xl font-black font-serif mt-1">
-              {isAdmin ? 'Store Order Management' : 'My Orders & Order History'}
+              My Orders & Order History
             </h1>
           </div>
 
           <div className="flex items-center gap-3">
+            <button onClick={onSignOut} className="flex items-center gap-2 px-4 py-3 text-xs font-bold text-stone-300 hover:text-white border border-neutral-800 hover:border-neutral-700 rounded-xl">
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl px-5 py-3 text-right">
               <p className="text-xs text-stone-500">Total Placed Orders</p>
               <p className="text-2xl font-black text-amber-400">{filteredOrders.length}</p>

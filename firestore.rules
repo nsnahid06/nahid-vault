@@ -21,8 +21,10 @@ service cloud.firestore {
 
     // Orders Collection
     match /orders/{orderId} {
-      allow create: if isValidId(orderId);
-      allow read: if true;
+      allow create: if isSignedIn()
+        && isValidId(orderId)
+        && request.resource.data.userId == request.auth.uid;
+      allow read: if isOwner(resource.data.userId);
     }
 
     // Users Wishlists
@@ -33,13 +35,15 @@ service cloud.firestore {
     // Products Collection
     match /products/{productId} {
       allow read: if true;
-      allow write: if isSignedIn() && isValidId(productId);
+      allow write: if false;
     }
 
     // Reviews Collection
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if isValidId(reviewId)
+      allow create: if isSignedIn()
+        && isValidId(reviewId)
+        && request.resource.data.userId == request.auth.uid
         && request.resource.data.productId is string
         && request.resource.data.productId.size() <= 128
         && request.resource.data.userName is string

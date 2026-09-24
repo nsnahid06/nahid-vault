@@ -10,6 +10,7 @@ interface ProductDetailModalProps {
   onAddToCart: (product: Product, size: Size, color: ColorVariant, quantity: number) => void;
   onBuyNow: (product: Product, size: Size, color: ColorVariant, quantity: number) => void;
   currentUser?: string;
+  isAuthenticated?: boolean;
   onShowToast?: (title: string, message: string, type?: 'success' | 'info' | 'warning') => void;
 }
 
@@ -19,6 +20,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onAddToCart,
   onBuyNow,
   currentUser = 'user',
+  isAuthenticated = false,
   onShowToast,
 }) => {
   if (!product) return null;
@@ -155,6 +157,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAuthenticated || !auth.currentUser) {
+      setSubmitFeedback('Please sign in before submitting a review.');
+      return;
+    }
     if (!reviewComment.trim()) return;
 
     setIsSubmittingReview(true);
@@ -172,7 +178,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       rating: reviewRating,
       comment: reviewComment.trim(),
       createdAt: new Date().toISOString(),
-      userId: auth.currentUser?.uid || 'guest',
+      userId: auth.currentUser.uid,
     };
 
     const pathForReview = `reviews/${reviewId}`;
@@ -193,12 +199,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       } catch (e) {
         // Logged via handleFirestoreError
       }
-      // Save locally so the user's review is visibly added
-      setDbReviews((prev) => [newReview, ...prev]);
-      setReviewComment('');
-      setSubmitFeedback('Review submitted and recorded.');
+      setSubmitFeedback('Your review could not be saved. Please try again.');
       if (onShowToast) {
-        onShowToast('Review Added', `Thank you for reviewing ${product.title}!`, 'success');
+        onShowToast('Review Not Saved', 'We could not save your review. Please try again.', 'warning');
       }
       setTimeout(() => setSubmitFeedback(null), 4000);
     } finally {

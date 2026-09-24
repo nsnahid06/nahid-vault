@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import type { User } from 'firebase/auth';
 import { PRODUCTS, PROMO_CODES } from './data/products';
 import { Product, Category, Size, ColorVariant, CartItem, SortOption, ShippingDetails, PaymentMethod, Order, ToastMessage } from './types';
 import { Header, VibeTheme } from './components/Header';
@@ -15,7 +16,7 @@ import { GlobalRegionSelector } from './components/GlobalRegionSelector';
 import { ToastStack } from './components/Toast';
 import { Footer } from './components/Footer';
 import { SlidersHorizontal, ArrowUpDown, Sparkles, Filter, X, Heart, ShoppingBag, Mic } from 'lucide-react';
-import { db, auth, handleFirestoreError, OperationType } from './lib/firebase';
+import { db, initAuth, logout } from './lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { AdminDashboard } from './components/AdminDashboard';
@@ -32,7 +33,7 @@ const CATEGORIES: Category[] = [
 export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isLampLoginOpen, setIsLampLoginOpen] = useState(false);
-  const [loggedInUser, setLoggedInUser] = useState<string>('user');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   // State variables
   const [vibeTheme, setVibeTheme] = useState<VibeTheme>('crimson');
   const [selectedCategory, setSelectedCategory] = useState<Category>('All');
@@ -69,6 +70,10 @@ export default function App() {
   const [discountRate, setDiscountRate] = useState<number>(0);
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  useEffect(() => initAuth(setCurrentUser, () => setCurrentUser(null)), []);
+
+  const currentUserName = currentUser?.displayName || currentUser?.email || 'Guest';
 
   // Helper for triggering toast
   const addToast = (title: string, message: string, type: 'success' | 'info' | 'warning' = 'success', image?: string) => {
@@ -208,6 +213,12 @@ export default function App() {
 
   // Checkout & Order Completion
   const handleCompleteOrder = async (shippingDetails: ShippingDetails, paymentMethod: PaymentMethod) => {
+    if (!currentUser) {
+      setIsCheckoutOpen(false);
+      setIsLampLoginOpen(true);
+      addToast('Sign In Required', 'Please sign in before placing an order.', 'warning');
+      return;
+    }
     const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
     const discount = subtotal * discountRate;
     const discountedSubtotal = subtotal - discount;
@@ -240,7 +251,7 @@ export default function App() {
     try {
       await setDoc(doc(db, 'orders', newOrder.id), {
         ...newOrder,
-        userId: auth.currentUser?.uid || 'guest',
+        userId: currentUser.uid,
         createdAt: new Date().toISOString(),
       });
       addToast('Order Saved!', `Order ${newOrder.id} stored in Firestore`, 'success');
@@ -270,7 +281,15 @@ export default function App() {
   }, [vibeTheme]);
 
   if (isAdminOpen) {
-    return <AdminDashboard onBack={() => setIsAdminOpen(false)} currentUser={loggedInUser} />;
+    return <AdminDashboard
+      onBack={() => setIsAdminOpen(false)}
+      onSignOut={async () => {
+        await logout();
+        setIsAdminOpen(false);
+      }}
+      userId={currentUser?.uid}
+      currentUser={currentUserName}
+    />;
   }
 
   return (
@@ -299,7 +318,7 @@ export default function App() {
         onSelectVibe={setVibeTheme}
         onOpenVoiceConversation={() => setIsVoiceModalOpen(true)}
         onOpenRegionGateway={() => setIsRegionGatewayOpen(true)}
-        onOpenAdminLogin={() => setIsLampLoginOpen(true)}
+        onOpenAdminLogin={() => currentUser ? setIsAdminOpen(true) : setIsLampLoginOpen(true)}
       />
 
       {/* Global Landing Gateway / Region Selector Overlay */}
@@ -529,7 +548,8 @@ export default function App() {
           setSelectedProduct(null);
           setIsCartOpen(true);
         }}
-        currentUser={loggedInUser}
+        currentUser={currentUserName}
+        isAuthenticated={Boolean(currentUser)}
         onShowToast={addToast}
       />
 
@@ -585,10 +605,10 @@ export default function App() {
       <LampLoginModal
         isOpen={isLampLoginOpen}
         onClose={() => setIsLampLoginOpen(false)}
-        onLoginSuccess={(username) => {
-          setLoggedInUser(username);
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
           setIsAdminOpen(true);
-          addToast('Logged In Successfully', `Welcome ${username}! Viewing placed orders.`, 'success');
+          addToast('Logged In Successfully', `Welcome ${user.displayName || user.email || 'back'}! Viewing your orders.`, 'success');
         }}
       />
 

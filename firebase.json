@@ -1,0 +1,8 @@
+{
+  "firestore": [
+    {
+      "database": "ai-studio-nahidvault-0f8fbc49-fde4-4a5a-8c34-4e045e067c1f",
+      "rules": "firestore.rules"
+    }
+  ]
+}

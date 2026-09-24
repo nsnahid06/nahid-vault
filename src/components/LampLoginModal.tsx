@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import type { User } from 'firebase/auth';
 import { X, Lock, KeyRound, Sparkles, Lightbulb, ArrowLeft, CheckCircle2, Eye, EyeOff, Home } from 'lucide-react';
+import { register, requestPasswordReset, signIn } from '../lib/firebase';
 
 interface LampLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (username: string) => void;
+  onLoginSuccess: (user: User) => void;
 }
 
 export const LampLoginModal: React.FC<LampLoginModalProps> = ({
@@ -38,6 +40,7 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
   const [regLastName, setRegLastName] = useState('');
   const [regSuccess, setRegSuccess] = useState(false);
   const [regError, setRegError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
@@ -47,51 +50,75 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
     setIsLightOn((prev) => !prev);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanUser = username.trim();
-    const cleanPass = password.trim();
+  const getAuthErrorMessage = (error: unknown) => {
+    const code = (error as { code?: string }).code;
+    if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return 'Incorrect email address or password.';
+    if (code === 'auth/email-already-in-use') return 'An account already exists for this email address.';
+    if (code === 'auth/weak-password') return 'Choose a password with at least 9 characters.';
+    if (code === 'auth/too-many-requests') return 'Too many attempts. Please try again later.';
+    return 'Authentication is unavailable. Please try again.';
+  };
 
-    if (!cleanUser) {
-      setError('Please enter your E-mail or Mobile No.');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = username.trim();
+
+    if (!email) {
+      setError('Please enter your email address.');
       return;
     }
 
-    // Credentials check for username & password
-    if (
-      (cleanUser.toLowerCase() === 'nahid' && cleanPass === '2489') ||
-      (cleanUser.toLowerCase() === 'admin' && (cleanPass === '1234' || cleanPass === '2489')) ||
-      cleanPass === '2489' ||
-      cleanPass === '1234'
-    ) {
+    setIsSubmitting(true);
+    try {
+      const user = await signIn(email, password);
       setError(null);
-      onLoginSuccess(cleanUser);
+      onLoginSuccess(user);
       onClose();
-    } else {
-      setError('Invalid E-mail/Mobile No or Password!');
+    } catch (error) {
+      setError(getAuthErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (forgotEmail.trim()) {
+    setIsSubmitting(true);
+    try {
+      await requestPasswordReset(forgotEmail.trim());
       setForgotSubmitted(true);
+      setError(null);
+    } catch (error) {
+      setError(getAuthErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (regPassword !== regConfirmPassword) {
       setRegError('Passwords do not match!');
       return;
     }
+    if (regPassword.length < 9) {
+      setRegError('Use a password with at least 9 characters.');
+      return;
+    }
+
+    setIsSubmitting(true);
     setRegError(null);
-    setRegSuccess(true);
     const fullName = `${regFirstName} ${regLastName}`.trim() || regEmail || 'User';
-    setTimeout(() => {
-      onLoginSuccess(fullName);
-      resetAndClose();
-    }, 1500);
+    try {
+      const user = await register(regEmail.trim(), regPassword, fullName);
+      setRegSuccess(true);
+      onLoginSuccess(user);
+      setTimeout(resetAndClose, 1500);
+    } catch (error) {
+      setRegError(getAuthErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetAndClose = () => {
@@ -155,40 +182,16 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
                   />
                 </div>
 
-                {/* 2. Mobile No. * + Send OTP button */}
+                {/* Phone numbers are collected for future delivery updates, not authentication. */}
                 <div>
                   <label className="block text-xs font-bold text-stone-900 mb-1">
-                    Mobile No. <span className="text-red-600 font-black">*</span>
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={regMobile}
-                      onChange={(e) => setRegMobile(e.target.value)}
-                      required
-                      className="flex-1 h-10 bg-white border border-stone-300 rounded px-3 text-stone-900 text-sm focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 shadow-sm transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setOtpSent(true)}
-                      className="h-10 px-5 bg-stone-200 hover:bg-stone-300 active:bg-stone-400 text-stone-800 font-medium text-xs rounded transition-colors whitespace-nowrap cursor-pointer shadow-sm border border-stone-300"
-                    >
-                      {otpSent ? 'OTP Sent!' : 'Send OTP'}
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3. OTP * */}
-                <div>
-                  <label className="block text-xs font-bold text-stone-900 mb-1">
-                    OTP <span className="text-red-600 font-black">*</span>
+                    Mobile No. <span className="text-stone-500 font-normal">(optional)</span>
                   </label>
                   <input
                     type="text"
-                    value={regOtp}
-                    onChange={(e) => setRegOtp(e.target.value)}
-                    placeholder={otpSent ? "Enter 6-digit OTP code" : "Click Send OTP above"}
-                    required
+                    value={regMobile}
+                    onChange={(e) => setRegMobile(e.target.value)}
+                    placeholder="Optional delivery contact number"
                     className="w-full h-10 bg-white border border-stone-300 rounded px-3 text-stone-900 text-sm focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 shadow-sm transition-all"
                   />
                 </div>
@@ -311,9 +314,10 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
 
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   className="w-full h-12 bg-gradient-to-r from-[#baa13b] via-[#fff2a4] to-[#cbb23f] hover:brightness-110 text-stone-950 font-bold text-sm tracking-widest uppercase rounded-lg transition-all shadow-md active:scale-95 cursor-pointer mt-4"
                 >
-                  CREATE ACCOUNT
+                  {isSubmitting ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
                 </button>
 
                 <div className="mt-4 text-center">
@@ -350,7 +354,7 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
             {!forgotSubmitted ? (
               <>
                 <p className="text-center text-stone-700 text-sm leading-relaxed mb-6 font-medium">
-                  Don't worry - it's easily done! Just enter your email address below and we'll send you an e-mail and SMS to reset your password.
+                  Enter your email address and we will send you a password reset link.
                 </p>
 
                 <form onSubmit={handleForgotSubmit} className="space-y-5">
@@ -369,10 +373,11 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
                   </div>
 
                   <button
-                    type="submit"
+                  type="submit"
+                  disabled={isSubmitting}
                     className="w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-sm tracking-widest uppercase rounded-lg transition-all shadow-md active:scale-95 cursor-pointer"
                   >
-                    SUBMIT
+                  {isSubmitting ? 'SENDING...' : 'SUBMIT'}
                   </button>
                 </form>
 
@@ -397,7 +402,7 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
                 </div>
                 <h3 className="text-lg font-bold text-stone-900">Reset Request Sent!</h3>
                 <p className="text-sm text-stone-600">
-                  We have dispatched a password reset link and SMS OTP to <span className="font-bold text-stone-900">{forgotEmail}</span>.
+                  We have sent a password reset link to <span className="font-bold text-stone-900">{forgotEmail}</span>.
                 </p>
                 <button
                   type="button"
@@ -511,17 +516,17 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
                 <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
                   <div>
                     <label className="block text-xs font-semibold text-stone-300 mb-1.5 uppercase tracking-wider">
-                      E-mail/Mobile No<span className="text-red-500 font-bold ml-0.5">*</span>
+                      E-mail<span className="text-red-500 font-bold ml-0.5">*</span>
                     </label>
 
                     <div className="relative">
                       <input
-                        type="text"
+                        type="email"
                         id="lamp-username-input"
                         name="username-login-field"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Enter Email or Mobile No"
+                        placeholder="Enter your email"
                         required
                         autoComplete="off"
                         autoCapitalize="off"
@@ -575,9 +580,10 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
                   <button
                     type="submit"
                     id="lamp-submit-login-btn"
+                    disabled={isSubmitting}
                     className="w-full h-12 mt-2 rounded-xl text-stone-950 font-bold text-sm tracking-wide bg-gradient-to-r from-[#baa13b] via-[#fff2a4] to-[#cbb23f] hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <span>Sign In</span>
+                    <span>{isSubmitting ? 'Signing In...' : 'Sign In'}</span>
                   </button>
 
                   {/* Create Account Divider & Section */}
@@ -604,4 +610,3 @@ export const LampLoginModal: React.FC<LampLoginModalProps> = ({
     </div>
   );
 };
-
