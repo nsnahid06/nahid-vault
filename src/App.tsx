@@ -17,6 +17,7 @@ import { ToastStack } from './components/Toast';
 import { Footer } from './components/Footer';
 import { SlidersHorizontal, ArrowUpDown, Sparkles, Filter, X, Heart, ShoppingBag, Mic } from 'lucide-react';
 import { db, initAuth, logout } from './lib/firebase';
+import { formatBDT } from './lib/currency';
 import { doc, setDoc } from 'firebase/firestore';
 
 import { AdminDashboard } from './components/AdminDashboard';
@@ -516,7 +517,7 @@ export default function App() {
                       <img src={product.images[0]} alt="" className="w-14 h-16 object-cover rounded bg-white" referrerPolicy="no-referrer" />
                       <div className="flex-1">
                         <p className="font-bold text-xs line-clamp-1">{product.title}</p>
-                        <p className="font-serif text-xs text-amber-500 font-bold">${product.price}</p>
+                        <p className="font-serif text-xs text-amber-500 font-bold">{formatBDT(product.price)}</p>
                       </div>
                       <button
                         onClick={() => handleAddToCart(product)}

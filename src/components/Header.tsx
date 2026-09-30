@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({
           ★ Autumn / Winter 2026 Collection
         </span>
         <span className="mx-auto sm:mx-0 text-stone-800">
-          FREE EXPRESS SHIPPING OVER $150 • USE CODE <strong className="text-black underline decoration-amber-500">NVM66</strong> FOR 10% OFF
+          FREE EXPRESS SHIPPING OVER BDT 18,450 • USE CODE <strong className="text-black underline decoration-amber-500">NVM66</strong> FOR 10% OFF
         </span>
         <span className="hidden md:inline-block text-stone-600 text-[11px]">
           Need Help? 01609258416-NV
@@ -299,4 +299,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-

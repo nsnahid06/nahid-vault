@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, CreditCard, Banknote, Smartphone, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 import { CartItem, ShippingDetails, PaymentMethod } from '../types';
+import { formatBDT, formatBDTDiscount } from '../lib/currency';
 
 interface CheckoutModalProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     address: '',
     city: '',
     postalCode: '',
-    country: 'United States',
+    country: 'Bangladesh',
     notes: '',
   });
 
@@ -269,7 +270,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   }`}
                 >
                   <Smartphone className="w-5 h-5" />
-                  <span>Apple / Google Pay</span>
+                  <span>Mobile Banking</span>
                 </button>
               </div>
 
@@ -330,7 +331,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
               {paymentMethod === 'mobile_banking' && (
                 <div className="p-3 bg-stone-50 dark:bg-neutral-800/80 rounded-xl text-xs text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-neutral-700">
-                   You will be prompted to authenticate your biometric Apple Pay / Google Pay authorization upon placing order.
+                   Complete your bKash, Nagad, or bank-app payment after placing the order.
                 </div>
               )}
             </div>
@@ -343,7 +344,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                 className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 active:scale-95"
               >
                 <ShieldCheck className="w-4 h-4" />
-                <span>Complete Order (${total.toFixed(2)})</span>
+                <span>Complete Order ({formatBDT(total)})</span>
               </button>
             </div>
           </form>
@@ -371,7 +372,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       {item.selectedSize} / {item.selectedColor.name} • Qty: {item.quantity}
                     </p>
                   </div>
-                  <span className="font-bold font-serif">${(item.product.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-bold font-serif">{formatBDT(item.product.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
@@ -379,28 +380,28 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <div className="space-y-2 pt-3 border-t border-stone-200 dark:border-neutral-800 text-xs text-stone-600 dark:text-stone-400">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-bold text-stone-900 dark:text-white">${subtotal.toFixed(2)}</span>
+                <span className="font-bold text-stone-900 dark:text-white">{formatBDT(subtotal)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-500">
                   <span>Discount</span>
-                  <span className="font-bold">-${discount.toFixed(2)}</span>
+                  <span className="font-bold">{formatBDTDiscount(discount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span>Shipping</span>
                 <span className="font-bold text-stone-900 dark:text-white">
-                  {shippingFee === 0 ? 'FREE' : `$${shippingFee.toFixed(2)}`}
+                  {shippingFee === 0 ? 'FREE' : formatBDT(shippingFee)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Estimated Tax</span>
-                <span className="font-bold text-stone-900 dark:text-white">${tax.toFixed(2)}</span>
+                <span className="font-bold text-stone-900 dark:text-white">{formatBDT(tax)}</span>
               </div>
 
               <div className="flex justify-between text-base font-black text-stone-900 dark:text-white font-serif pt-2 border-t border-stone-200 dark:border-neutral-800">
                 <span>Total Due</span>
-                <span className="text-amber-500">${total.toFixed(2)}</span>
+                <span className="text-amber-500">{formatBDT(total)}</span>
               </div>
             </div>
           </div>

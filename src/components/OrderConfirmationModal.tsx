@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, Calendar, MapPin, ArrowRight, Sparkles } from 'lucide-react';
 import { Order } from '../types';
+import { formatBDT } from '../lib/currency';
 
 interface OrderConfirmationModalProps {
   order: Order | null;
@@ -83,7 +84,7 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
                     <p className="text-[10px] text-stone-500">Size {item.selectedSize} • {item.selectedColor.name} • Qty {item.quantity}</p>
                   </div>
                 </div>
-                <span className="font-bold font-serif">${(item.product.price * item.quantity).toFixed(2)}</span>
+                <span className="font-bold font-serif">{formatBDT(item.product.price * item.quantity)}</span>
               </div>
             ))}
           </div>
@@ -92,7 +93,7 @@ export const OrderConfirmationModal: React.FC<OrderConfirmationModalProps> = ({
         {/* Total Paid Summary */}
         <div className="p-3 bg-neutral-900 text-white rounded-xl flex justify-between items-center text-sm font-bold">
           <span className="uppercase text-xs text-stone-400">Total Paid:</span>
-          <span className="text-amber-400 font-serif text-lg">${order.total.toFixed(2)}</span>
+          <span className="text-amber-400 font-serif text-lg">{formatBDT(order.total)}</span>
         </div>
 
         {/* Buttons */}

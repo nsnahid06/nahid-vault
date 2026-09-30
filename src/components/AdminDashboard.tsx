@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { formatBDT, formatBDTDiscount } from '../lib/currency';
 import { ArrowLeft, Package, User, MapPin, CreditCard, Search, LogOut } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -157,7 +158,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, onSignOu
 
                   <div className="text-left md:text-right">
                     <p className="text-xl font-black text-amber-400">
-                      ${Number(order.total || 0).toFixed(2)}
+                      {formatBDT(Number(order.total || 0))}
                     </p>
 
                     <p className="text-xs text-stone-400 capitalize mt-0.5">
@@ -271,7 +272,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, onSignOu
                       </div>
 
                       <p className="font-bold">
-                        ${(item.product?.price * item.quantity).toFixed(2)}
+                        {formatBDT(item.product?.price * item.quantity)}
                       </p>
                     </div>
                   ))}
@@ -297,28 +298,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack, onSignOu
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-stone-500">Subtotal</span>
-                  <span>${Number(selectedOrder.subtotal || 0).toFixed(2)}</span>
+                  <span>{formatBDT(Number(selectedOrder.subtotal || 0))}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-stone-500">Discount</span>
-                  <span>-${Number(selectedOrder.discount || 0).toFixed(2)}</span>
+                  <span>{formatBDTDiscount(Number(selectedOrder.discount || 0))}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-stone-500">Shipping</span>
-                  <span>${Number(selectedOrder.shippingFee || 0).toFixed(2)}</span>
+                  <span>{formatBDT(Number(selectedOrder.shippingFee || 0))}</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span className="text-stone-500">Tax</span>
-                  <span>${Number(selectedOrder.tax || 0).toFixed(2)}</span>
+                  <span>{formatBDT(Number(selectedOrder.tax || 0))}</span>
                 </div>
 
                 <div className="flex justify-between text-xl font-black border-t border-neutral-800 pt-3">
                   <span>Total</span>
                   <span className="text-amber-500">
-                    ${Number(selectedOrder.total || 0).toFixed(2)}
+                    {formatBDT(Number(selectedOrder.total || 0))}
                   </span>
                 </div>
               </div>

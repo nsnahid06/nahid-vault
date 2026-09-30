@@ -97,7 +97,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 </div>
                 <div className="text-xs text-stone-400 flex justify-between items-center pt-1">
                   <span>Complete Outfit Bundle</span>
-                  <span className="text-white font-bold">$534.00</span>
+                  <span className="text-white font-bold">BDT 65,682</span>
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             <Truck className="w-5 h-5 text-amber-500 shrink-0" />
             <div className="text-left">
               <p className="font-bold text-white uppercase tracking-wider">Free Express Delivery</p>
-              <p className="text-stone-400 text-[11px]">Complimentary shipping on orders over $150</p>
+              <p className="text-stone-400 text-[11px]">Complimentary shipping on orders over BDT 18,450</p>
             </div>
           </div>
 

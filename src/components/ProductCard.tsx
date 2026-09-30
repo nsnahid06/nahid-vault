@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Heart, ShoppingBag, Eye, Check } from 'lucide-react';
 import { Product } from '../types';
+import { formatBDT } from '../lib/currency';
 
 interface ProductCardProps {
   product: Product;
@@ -124,11 +125,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div className="pt-2 border-t border-neutral-800 flex items-center justify-between">
           <div className="flex items-baseline gap-2">
             <span className="text-base font-black text-white font-serif">
-              ${product.price}
+              {formatBDT(product.price)}
             </span>
             {product.originalPrice && (
               <span className="text-xs text-stone-500 line-through">
-                ${product.originalPrice}
+                {formatBDT(product.originalPrice)}
               </span>
             )}
           </div>

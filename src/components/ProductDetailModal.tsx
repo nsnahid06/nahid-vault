@@ -3,6 +3,7 @@ import { X, Star, ShoppingBag, Check, Info, Ruler, MessageSquare, Send, Sparkles
 import { Product, Size, ColorVariant, Review } from '../types';
 import { db, auth, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, doc, getDocs, query, setDoc, where } from 'firebase/firestore';
+import { formatBDT } from '../lib/currency';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -366,16 +367,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
 
                 <div className="flex items-baseline gap-3 pt-1">
                   <span className="text-2xl font-black font-serif text-white">
-                    ${product.price}
+                    {formatBDT(product.price)}
                   </span>
                   {product.originalPrice && (
                     <span className="text-sm text-stone-500 line-through">
-                      ${product.originalPrice}
+                      {formatBDT(product.originalPrice)}
                     </span>
                   )}
                   {product.originalPrice && (
                     <span className="text-xs font-bold text-rose-400 bg-rose-950/60 border border-rose-900/50 px-2 py-0.5 rounded">
-                      Save ${product.originalPrice - product.price}
+                      Save {formatBDT(product.originalPrice - product.price)}
                     </span>
                   )}
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, Tag, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 import { CartItem } from '../types';
+import { formatBDT, formatBDTDiscount } from '../lib/currency';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -95,7 +96,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="bg-neutral-900 text-stone-300 p-3.5 text-xs border-b border-neutral-800 space-y-1.5">
               <div className="flex justify-between font-semibold">
                 {remainingForFreeShipping > 0 ? (
-                  <span>Add <strong className="text-amber-400">${remainingForFreeShipping.toFixed(2)}</strong> more for Free Shipping!</span>
+                  <span>Add <strong className="text-amber-400">{formatBDT(remainingForFreeShipping)}</strong> more for Free Shipping!</span>
                 ) : (
                   <span className="text-emerald-400 font-bold flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5" />
@@ -202,7 +203,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       </div>
 
                       <span className="text-sm font-bold font-serif text-stone-900 dark:text-white">
-                        ${(item.product.price * item.quantity).toFixed(2)}
+                        {formatBDT(item.product.price * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -270,31 +271,31 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               <div className="space-y-1.5 text-xs pt-1 border-t border-stone-200 dark:border-neutral-800">
                 <div className="flex justify-between text-stone-600 dark:text-stone-400">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-stone-900 dark:text-white">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-stone-900 dark:text-white">{formatBDT(subtotal)}</span>
                 </div>
 
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
                     <span>Discount</span>
-                    <span className="font-semibold">-${discountAmount.toFixed(2)}</span>
+                    <span className="font-semibold">{formatBDTDiscount(discountAmount)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-stone-600 dark:text-stone-400">
                   <span>Shipping</span>
                   <span className="font-semibold text-stone-900 dark:text-white">
-                    {shippingFee === 0 ? <strong className="text-emerald-500">FREE</strong> : `$${shippingFee.toFixed(2)}`}
+                    {shippingFee === 0 ? <strong className="text-emerald-500">FREE</strong> : formatBDT(shippingFee)}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-stone-600 dark:text-stone-400">
                   <span>Estimated Tax (8%)</span>
-                  <span className="font-semibold text-stone-900 dark:text-white">${tax.toFixed(2)}</span>
+                  <span className="font-semibold text-stone-900 dark:text-white">{formatBDT(tax)}</span>
                 </div>
 
                 <div className="flex justify-between text-base font-black text-stone-900 dark:text-white font-serif pt-2 border-t border-stone-200 dark:border-neutral-800">
                   <span>Total</span>
-                  <span className="text-amber-500">${grandTotal.toFixed(2)}</span>
+                  <span className="text-amber-500">{formatBDT(grandTotal)}</span>
                 </div>
               </div>
 
