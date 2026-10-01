@@ -90,30 +90,6 @@ Nahid Vault follows a modern full-stack web architecture:
 ```text
   
 
-### Architecture Flow
-
-```text
-User
-  ↓
-React Frontend
-  ↓
-Firebase Authentication / Firestore
-  ↓
-Orders & Reviews
-
-React Frontend
-  ↓
-WebSocket
-  ↓
-Node.js + Express
-  ↓
-Google Gemini Live API
-  ↓
-AI Voice Stylist
-```
-
----
-
 ## 👤 User Authentication
 
 Nahid Vault uses **Firebase Authentication** for secure user authentication.
@@ -468,10 +444,7 @@ The Firestore security configuration supports user-specific wishlist documents.
 
 
 ### Product Catalogue
-
-![Uploading Screenshot 2026-10-01 124931.png…]()
-
-
+<img width="1907" height="915" alt="12" src="https://github.com/user-attachments/assets/ef8198f2-3f1d-410c-8c53-e2919ea56c74" />
 
 
 ## 📂 Project Structure
