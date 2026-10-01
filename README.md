@@ -85,35 +85,10 @@ https://nahid-vault.onrender.com/
 ## 🏗️ System Architecture
 
 Nahid Vault follows a modern full-stack web architecture:
+<img width="2064" height="960" alt="2" src="https://github.com/user-attachments/assets/7b1116c4-6c70-44e9-8c93-64a5f5b593f6" />
 
 ```text
-                    ┌──────────────────────┐
-                    │       USER           │
-                    │   Web Browser        │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                    ┌──────────────────────┐
-                    │      FRONTEND        │
-                    │ React + TypeScript   │
-                    │ Vite + Tailwind CSS  │
-                    └───────┬───────┬──────┘
-                            │       │
-                ┌───────────┘       └──────────────┐
-                ▼                                  ▼
-     ┌─────────────────────┐             ┌─────────────────────┐
-     │ Firebase Services   │             │ Node.js + Express   │
-     │                     │             │                     │
-     │ Authentication      │             │ WebSocket Server    │
-     │ Cloud Firestore     │             │ AI Integration      │
-     └──────────┬──────────┘             └──────────┬──────────┘
-                │                                   │
-                ▼                                   ▼
-     ┌─────────────────────┐             ┌─────────────────────┐
-     │ Orders & Reviews    │             │ Google Gemini Live  │
-     │ User Authentication │             │ AI Voice Stylist    │
-     └─────────────────────┘             └─────────────────────┘
-```
+  
 
 ### Architecture Flow
 
@@ -489,11 +464,13 @@ The Firestore security configuration supports user-specific wishlist documents.
 
 ### Homepage
 
-*Add homepage screenshot here.*
+<img width="1896" height="918" alt="4" src="https://github.com/user-attachments/assets/eb32e18b-b9d9-4a8e-bbf8-9d6d32b04faa" />
+
 
 ### Product Catalogue
 
-*Add product catalogue screenshot here.*
+![Uploading Screenshot 2026-10-01 124931.png…]()
+
 
 
 
